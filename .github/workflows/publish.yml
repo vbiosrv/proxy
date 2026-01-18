@@ -36,4 +36,4 @@ jobs:
         with:
           context: ./proxy
           push: true
-          tags: idsmef/whatsapp_proxy:${{ steps.vars.outputs.tag }}
+          tags: idsmef/proxy:${{ steps.vars.outputs.tag }}
