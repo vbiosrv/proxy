@@ -1,115 +1,198 @@
 <!-- Copyright (c) Meta Platforms, Inc. and affiliates.
+
 License found in the LICENSE file in the root directory
 of this source tree. -->
-# Прокси для WhatsApp
+# WhatsApp Chat Proxy
 
 [<img alt="github" src="https://img.shields.io/badge/github-WhatsApp/proxy-8da0cb?style=for-the-badge&labelColor=555555&logo=github" height="20">](https://github.com/WhatsApp/proxy)
 [![CI](https://github.com/WhatsApp/proxy/actions/workflows/ci.yml/badge.svg)](https://github.com/WhatsApp/proxy/actions/workflows/ci.yml)
 
-Если вы не можете подключиться напрямую к WhatsApp, можно использовать прокси в качестве шлюза между вами и нашими серверами. Чтобы помочь себе или другим восстановить соединение с WhatsApp, вы можете настроить собственный прокси-сервер.
+If you are unable to connect directly to WhatsApp, a proxy can be used as a gateway between you and our servers. To help yourself or others re-establish connection to WhatsApp, you can set up a proxy server.
 
-Если у вас уже есть готовый прокси, вы можете подключить его к WhatsApp, следуя инструкциям в этой [статье](https://faq.whatsapp.com/520504143274092).
+If you already have a proxy to use, you can connect it to WhatsApp by following the steps in this [article](https://faq.whatsapp.com/520504143274092).
 
-## Часто задаваемые вопросы
+## Frequently asked questions
 
-**ОБЯЗАТЕЛЬНО ПРОЧИТАЙТЕ ПЕРЕД СОЗДАНИЕМ ISSUE**  
-У нас есть FAQ, который можно найти здесь: [FAQ.md](https://github.com/whatsapp/proxy/blob/main/FAQ.md)
+**PLEASE READ THIS BEFORE OPENING AN ISSUE** We have an FAQ, which you can find here: [FAQ.md](https://github.com/whatsapp/proxy/blob/main/FAQ.md)
 
-## Что вам понадобится
+## What you'll need
 
-1. [Docker](https://docs.docker.com/engine/install/) (включите автозапуск Docker, если ваша система это позволяет)
-2. [Docker Compose](https://docs.docker.com/compose/) (опционально)
+1. [Docker](https://docs.docker.com/engine/install/) (enable Docker on startup if your host system allows)
+2. [Docker compose](https://docs.docker.com/compose/) (optional)
 
-## Настройка вашего прокси
+## Setting up your proxy
 
-**ОБНОВЛЕНИЕ** Теперь существует готовый образ, размещённый в репозитории DockerHub от Meta. Вам больше не нужно собирать образ самостоятельно (если, конечно, вы не хотите его кастомизировать).
+**UPDATE** There is now a pre-built image hosted in Meta's DockerHub repository. You no longer need to build the default image (if you don't want to customize it of course).
 
 ```bash
-docker pull idsmef/whatsapp_proxy:latest
-После этого вы можете пропустить раздел Сборка контейнера и перейти сразу к Запуск прокси, заменив все упоминания тега whatsapp_proxy:1.0 на idsmef/whatsapp_proxy:latest.
-1. Клонируйте репозиторий на свой компьютер
-Bashgit clone https://github.com/WhatsApp/proxy.git
-В текущей директории должна появиться папка proxy.
-2. Установите Docker для вашей системы
-Чтобы убедиться, что Docker успешно установлен:
-Bashdocker --version
-должна отобразиться строка вида Docker version 20.10.21, build baeda1f.
-2. (Опционально) Установите Docker Compose
-Для пользователей Linux, если ваша версия Docker не включает Docker Compose, можно установить его отдельно:
-Bash# Скачиваем пакет
-sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$$   (uname -s)-   $$(uname -m) -o /usr/bin/docker-compose
-# Делаем исполняемым
+docker pull facebook/whatsapp_proxy:latest
+```
+
+You can then skip down to **Running the proxy** and substitute any tag of `whatsapp_proxy:1.0` with `facebook/whatsapp_proxy:latest`.
+
+### 1. Clone the repository to your local machine
+
+```bash
+git clone https://github.com/WhatsApp/proxy.git
+```
+
+You should see a folder called `proxy` created in the current directory.
+
+### 2. [Install Docker](https://docs.docker.com/get-docker/) for your system
+
+To confirm Docker is successfully installed:
+
+```bash
+docker --version
+```
+
+should display a line similar to `Docker version 20.10.21, build baeda1f`.
+
+### 2. (Optional) Install Docker compose
+
+For Linux users, if your [version of Docker](https://docs.docker.com/desktop/install/linux-install/) doesn't come pre-installed with Docker compose, you can install a one-off version (For Linux).
+
+```bash
+# Download the pkg
+sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose
+# Enable execution of the script
 sudo chmod +x /usr/bin/docker-compose
-3. Сборка контейнера прокси (если не используете готовый образ)
-Перейдите в директорию репозитория:
-Bashcd proxy
-Соберите контейнер командой:
-Bashdocker build proxy/ -t whatsapp_proxy:1.0
-Вы должны увидеть сообщение примерно такого вида: [+] Building 6.6s (18/18) FINISHED. Контейнер будет скомпилирован и помечен тегом whatsapp_proxy:1.0.
-Запуск прокси
-Запуск контейнера вручную
-Вы можете запустить Docker-контейнер следующей командой:
-Bashdocker run -it -p 80:80 -p 443:443 -p 5222:5222 -p 8080:8080 -p 8443:8443 -p 8222:8222 -p 8199:8199 -p 587:587 -p 7777:7777 whatsapp_proxy:1.0
-Вы увидите строки, заканчивающиеся на Certificate generation completed.. HAProxy будет работать в фоновом режиме, пока процесс не будет закрыт.
-Проверка подключения
-Чтобы убедиться, что HAProxy работает, откройте в браузере:
-http://<ваш-публичный-ip>:8199
-(где <ваш-публичный-ip> — это внешний IP-адрес вашего сервера).
-По этой же ссылке можно отслеживать статистику прокси.
-ПРИМЕЧАНИЕ: Если ваш публичный IP-адрес недоступен извне, вам нужно настроить проброс портов (port forwarding) на роутере/шлюзе для всех перечисленных выше портов. Поскольку настройка зависит от конкретной модели роутера, мы не будем подробно описывать этот процесс.
-Если вам нужен формат OpenMetrics, используйте:
-http://<ваш-публичный-ip>:8199/metrics
-Разное
-Обзор архитектуры прокси WhatsApp
-В зависимости от сценария использования, контейнер прокси открывает несколько портов. Основные порты:
+```
 
-80   — обычный веб-трафик (HTTP)
-443  — зашифрованный веб-трафик (HTTPS)
-5222 — трафик протокола Jabber (стандартный порт WhatsApp)
-587 или 7777 — трафик *.whatsapp.net, включая медиа (HTTPS)
+### 3. Build the proxy host container
 
-Также настроены порты, которые принимают входящие соединения с заголовками PROXY protocol (версии 1 или 2). Это полезно, если перед прокси стоит сетевой балансировщик нагрузки и вы хотите сохранять оригинальный IP клиента.
+Navigate to the repo directory
 
-8080 — HTTP с ожиданием PROXY protocol
-8443 — HTTPS с ожиданием PROXY protocol
-8222 — Jabber с ожиданием PROXY protocol
+```bash
+cd proxy
+```
 
-Генерация сертификатов для SSL-портов
-Порты 443 и 8443 защищены самоподписанным сертификатом, который генерируется при старте контейнера. Можно настроить дополнительные параметры сертификата:
+Build the proxy host container with
 
-SSL_DNS — список альтернативных имён хостов через запятую (по умолчанию пусто)
-SSL_IP — список альтернативных IP-адресов через запятую (по умолчанию пусто)
+```bash
+docker build proxy/ -t whatsapp_proxy:1.0
+```
 
-Пример задания при сборке:
-Bashdocker build . --build-arg SSL_DNS=test.example.com
-Продвинутые настройки
-Автоматизация с помощью Docker Compose
-Docker Compose позволяет удобно управлять контейнерами, автоматически применять нужные параметры и перезапускать их при сбоях. Мы рекомендуем использовать Docker Compose вместо ручного запуска (кроме тестов).
-В репозитории есть пример файла docker-compose.yml.
-Запуск в интерактивном режиме для проверки:
-Bashdocker compose -f /path/to/this/repo/docker-compose.yml up
-Запуск в фоновом режиме (как сервис):
-Bashdocker compose -f /path/to/this/repo/docker-compose.yml up -d
-Остановка:
-Bashdocker compose down
-Автозапуск при перезагрузке сервера
-После настройки Docker Compose можно добавить автозапуск через systemd (если ваша система его поддерживает).
-В репозитории есть пример файла docker_boot.service, который нужно адаптировать под вашу среду.
-Установка systemd-сервиса:
-Bash# Копируем файл в нужную папку
+You should see a message similar to `[+] Building 6.6s (18/18) FINISHED`. The container will be compiled and tagged as `whatsapp_proxy:1.0` for easy reference.
+
+## Running the proxy
+
+### Manually execute the container
+
+You can manually execute the Docker container with the following `docker` command
+
+```bash
+docker run -it -p 80:80 -p 443:443 -p 5222:5222 -p 8080:8080 -p 8443:8443 -p 8222:8222 -p 8199:8199 -p 587:587 -p 7777:7777 whatsapp_proxy:1.0
+```
+
+You will see lines ending with `Certificate generation completed.`. The HAProxy is running in the background and will continue to do so until you close this process.
+
+### Check your connection
+
+To confirm HAProxy is running, visit `http://<host-ip>:8199` where `<host-ip>` is your **public** IP address. You can also use this link to monitor proxy statistics.
+
+> NOTE: If your public IP address is not accessible, you will need to enable port forwarding (for the ports above) for the router/gateway you are using. Since this operation is device-specific, we are not going to go into it in details in this doc.
+
+If you prefer OpenMetrics output you can use `http://<host-ip>:8199/metrics` for monitoring HAProxy metrics.
+
+# Miscellanous
+
+## An Overview of the WhatsApp Proxy Architecture
+
+Depending on the scenario in which you utilize your proxy, the proxy container exposes multiple ports. The basic ports may include:
+
+1. 80: Standard web traffic (HTTP)
+2. 443: Standard web traffic, encrypted (HTTPS)
+3. 5222: Jabber protocol traffic (WhatsApp default)
+4. 587 or 7777: *.whatsapp.net traffic including media (HTTPS)
+
+There are also ports configured which accept incoming [proxy headers](https://www.haproxy.com/blog/use-the-proxy-protocol-to-preserve-a-clients-ip-address/) (version 1 or 2)
+on connections. If you have a network load balancer you can preserve the client IP address if you want.
+
+1. 8080: Standard web traffic (HTTP) with PROXY protocol expected
+2. 8443: Standard web traffic, encrypted (HTTPS) with PROXY protocol expected
+3. 8222: Jabber protocol traffic (WhatsApp default) with PROXY protocol expected
+
+## Certificate generation for SSL encrypted ports
+
+Ports 443 and 8443 are protected by a self-signed encryption certificate generated at container start time. There are some custom options should you wish to tweak the settings of the generated certificates
+
+* `SSL_DNS` comma separate list of alternative hostnames, no default
+* `SSL_IP` comma separate list of alternative IPs, no default
+
+They can be set with commands like
+
+```bash
+docker build . --build-arg SSL_DNS=test.example.com
+```
+
+## Advanced
+
+### Automate the container lifecycle with Docker compose
+
+Docker Compose is an automated tool to run multi-container deployments, but it also helps automate the command-line arguments necessary to run a single container. It is a YAML definition file that denotes all the settings to start up and run the container. It also has restart strategies in the event the container crashes or self-restarts. Docker Compose helps manage your container setup and necessary port forwards without user interaction. We recommend utilizing Docker Compose because you usually don’t want to manually run the container outside of testing scenarios.
+
+We provide a sample [docker-compose.yml](./proxy/ops/docker-compose.yml) file for you which defines a standard deployment of the proxy container.
+
+Once Docker compose is installed, you can test your specific configuration by running Docker compose interactively with:
+
+```bash
+docker compose -f /path/to/this/repo/docker-compose.yml up
+```
+
+This will allow you to see the output from the build + container hosting process and check that everything is set up correctly.
+
+When you are ready to run the container as a service, do\*:
+
+```bash
+docker compose -f /path/to/this/repo/docker-compose.yml up -d
+```
+
+*\*Note the `-d` flag which means "daemonize" and run as a service.*
+
+To stop the container you can similarly do:
+
+```bash
+docker compose down
+```
+
+### Automate host reboots with Docker compose
+
+Once you have Docker compose set up, you can also automate the deployment for host reboots by utilizing a `systemd` service (if your hosting environment supports it).
+
+We provide a sample [`docker_boot.service`](./proxy/ops/docker_boot.service) service definition for you which you should customize to your own environment.
+
+To install and setup the `systemd` service\*:
+
+```bash
+# Copy the service definition to systemd folder
 cp -v docker_boot.service /etc/systemd/system/
-# Включаем автозапуск при загрузке
+# Enable starting the service on startup
 systemctl enable docker_boot.service
-# Запускаем сервис
+# Start the service (will docker compose up the container)
 systemctl start docker_boot.service
-# Проверяем статус контейнеров
+# Check container status with
 docker ps
-Не забудьте указать правильный путь к вашему файлу docker-compose.yml в файле сервиса.
-Развёртывание в Kubernetes
-Если вы хотите использовать Kubernetes, смотрите наш Helm chart README.
-Другие варианты деплоя описаны здесь: /docs/deployments.md.
-Контрибьюторы
-Автором кода является Sean Lawlor .
-Подробнее о том, как внести вклад в проект: CONTRIBUTING.md.
-Лицензия
-Проект распространяется по лицензии MIT.
+```
+
+*\*Make sure to update the path to your specific `docker-compose.yml` file in the service definition `docker_boot.service`*
+
+## Kubernetes deployment
+
+If you would like to configure your proxy using Kubernetes, or run the Docker runtime through Kubernetes, please see our [Helm chart README](./charts/README.md)
+
+Read more about other type of deployments [here](/docs/deployments.md).
+
+# Contributors
+
+------------
+
+The authors of this code are Sean Lawlor ([@slawlor](https://github.com/slawlor)).
+
+To learn more about contributing to this project, [see this document](https://github.com/whatsapp/proxy/blob/main/CONTRIBUTING.md).
+
+# License
+
+------------
+
+This project is licensed under [MIT](https://github.com/novifinancial/akd/blob/main/LICENSE-MIT).
