@@ -21,7 +21,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v4
       with:
-        images: facebook/whatsapp_proxy
+        images: idsmef/whatsapp_proxy
         tags: |
           type=raw,value={{date 'YYYYMMDD'}}
 
